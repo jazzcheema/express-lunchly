@@ -16,8 +16,24 @@ class Customer {
     this.notes = notes;
   }
 
-  /** find all customers. */
 
+  /**Search customer by name*/
+  static async search(name) {
+    const cName = name;
+    const results = await db.query(
+      `SELECT id,
+                first_name AS "firstName",
+                last_name  AS "lastName",
+                phone,
+                notes
+           FROM customers
+           WHERE first_name = $1`,
+      [cName]
+    );
+    console.log("DB NAME", cName);
+    console.log(results.rows.map(c => new Customer(c)));
+    return results.rows.map(c => new Customer(c));
+  }
 
   /** get a customer's first name */
 
@@ -27,6 +43,7 @@ class Customer {
   }
 
 
+  /** find all customers. */
   static async all() {
     const results = await db.query(
       `SELECT id,

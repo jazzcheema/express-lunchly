@@ -13,8 +13,14 @@ const router = new express.Router();
 /** Homepage: show list of customers. */
 
 router.get("/", async function (req, res, next) {
-  const customers = await Customer.all();
+  if (!req.query.search) {
+    const customers = await Customer.all();
+    return res.render("customer_list.jinja", { customers });
+  }
+  console.log(req.query.search);
+  const customers = await Customer.search(req.query.search);
   return res.render("customer_list.jinja", { customers });
+
 });
 
 /** Form to add a new customer. */
@@ -91,5 +97,7 @@ router.post("/:id/add-reservation/", async function (req, res, next) {
 
   return res.redirect(`/${customerId}/`);
 });
+
+
 
 module.exports = router;
