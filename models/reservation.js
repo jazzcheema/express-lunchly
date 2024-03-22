@@ -5,6 +5,7 @@
 const moment = require("moment");
 
 const db = require("../db");
+const { BadRequestError } = require("../expressError");
 
 /** A reservation for a party */
 
@@ -39,6 +40,14 @@ class Reservation {
 
     return results.rows.map(row => new Reservation(row));
   }
+
+  /** Checks if there are no guests on reservation and sends an error. */
+  get checkNumGuests() {
+    if (this.numGuests < 1) {
+      throw new BadRequestError('Number of guests cannot be zero.');
+    }
+  }
+
 
   /** saves the reservation. */
 

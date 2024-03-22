@@ -20,29 +20,48 @@ class Customer {
   /** Search customer by name. */
 
   static async search(name) {
-    const cName = name;
-    console.log("MADE IT");
-    const results = await db.query(
-      `SELECT id,
+    const cName = name.split(' ');
+    let results;
+    if (cName.length === 2) {
+      results = await db.query(
+        `SELECT id,
         first_name AS "firstName",
                 last_name  AS "lastName",
                 phone,
                 notes
                 FROM customers
-                WHERE UPPER(first_name) ILIKE $1 OR UPPER(last_name) ILIKE $1`,
-      [`%${cName}%`]
-    );
+                WHERE UPPER(first_name) ILIKE $1 OR UPPER(last_name) ILIKE $2`,
+        [`${cName[0]}%`, `%${cName[1]}%`]
+      );
 
-
-    console.log(results.rows.map(c => new Customer(c)));
+    } else {
+      results = await db.query(
+        `SELECT id,
+          first_name AS "firstName",
+                  last_name  AS "lastName",
+                  phone,
+                  notes
+                  FROM customers
+                  WHERE UPPER(first_name) ILIKE $1 OR UPPER(last_name) ILIKE $1`,
+        [`%${cName[0]}%`]
+      );
+    }
     return results.rows.map(c => new Customer(c));
-
-
+    // const results = await db.query(
+    //   `SELECT id,
+    //     first_name AS "firstName",
+    //             last_name  AS "lastName",
+    //             phone,
+    //             notes
+    //             FROM customers
+    //             WHERE concat(first_name,' ', last_name) ILIKE $1`,
+    //   [`%${cName[0]}%`]
+    // );
   }
 
   /** get a customer's full name. */
 
-  fullName() {
+  get fullName() {
     const fullName = `${this.firstName} ${this.lastName}`;
     return fullName;
   }
