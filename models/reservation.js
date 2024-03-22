@@ -41,5 +41,32 @@ class Reservation {
   }
 }
 
+//   async save() {
+//   if (this.id === undefined) {
+//     const result = await db.query(
+//       `INSERT INTO customers (first_name, last_name, phone, notes)
+//            VALUES ($1, $2, $3, $4)
+//            RETURNING id`,
+//       [this.firstName, this.lastName, this.phone, this.notes],
+//     );
+//     this.id = result.rows[0].id;
+//   } else {
+//     await db.query(
+//       `UPDATE customers
+//            SET first_name=$1,
+//                last_name=$2,
+//                phone=$3,
+//                notes=$4
+//            WHERE id = $5`, [
+//       this.firstName,
+//       this.lastName,
+//       this.phone,
+//       this.notes,
+//       this.id,
+//     ],
+//     );
+//   }
+// }
+
 
 module.exports = Reservation;
