@@ -17,7 +17,8 @@ class Customer {
   }
 
 
-  /**Search customer by name*/
+  /** Search customer by name. */
+
   static async search(name) {
     const cName = name;
     const results = await db.query(
@@ -27,7 +28,7 @@ class Customer {
                 phone,
                 notes
            FROM customers
-           WHERE first_name = $1`,
+           WHERE UPPER(first_name) = UPPER($1)`,
       [cName]
     );
     console.log("DB NAME", cName);
@@ -35,7 +36,7 @@ class Customer {
     return results.rows.map(c => new Customer(c));
   }
 
-  /** get a customer's first name */
+  /** get a customer's full name. */
 
   fullName() {
     const fullName = `${this.firstName} ${this.lastName}`;
@@ -89,6 +90,7 @@ class Customer {
     return await Reservation.getReservationsForCustomer(this.id);
   }
 
+
   /** save this customer. */
 
   async save() {
@@ -117,6 +119,24 @@ class Customer {
       );
     }
   }
+
+  static async topTenCustomers() {
+    const result = await db.query(
+      `SELECT COUNT(customer_id), customer_id AS id, customers.first_name AS "firstName",
+      customers.last_name AS "lastName", customers.phone, customers.notes
+           FROM reservations JOIN customers ON reservations.customer_id = customers.id
+           GROUP BY customer_id, customers.first_name, customers.last_name, customers.phone, customers.notes
+           ORDER BY COUNT(customer_id)
+           DESC LIMIT(10)
+          `
+    );
+    const results = result.rows;
+    const topTen = results.map(c => new Customer(c));
+    return topTen;
+
+    // return customer_id.rows.map(c => Customer.get());
+  }
+
 }
 
 module.exports = Customer;

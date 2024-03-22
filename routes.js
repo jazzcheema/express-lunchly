@@ -23,6 +23,18 @@ router.get("/", async function (req, res, next) {
 
 });
 
+
+
+/** Show Top Ten Customers: show list of Top-10 customers. */
+
+router.get("/top-ten/", async function (req, res, next) {
+
+  const customers = await Customer.topTenCustomers();
+  console.log(customers, '*********CUSTOMERS');
+  return res.render("customer_list.jinja", { customers });
+});
+
+
 /** Form to add a new customer. */
 
 router.get("/add/", async function (req, res, next) {
@@ -97,6 +109,8 @@ router.post("/:id/add-reservation/", async function (req, res, next) {
 
   return res.redirect(`/${customerId}/`);
 });
+
+
 
 
 
