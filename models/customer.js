@@ -21,19 +21,23 @@ class Customer {
 
   static async search(name) {
     const cName = name;
+    console.log("MADE IT");
     const results = await db.query(
       `SELECT id,
-                first_name AS "firstName",
+        first_name AS "firstName",
                 last_name  AS "lastName",
                 phone,
                 notes
-           FROM customers
-           WHERE UPPER(first_name) = UPPER($1)`,
-      [cName]
+                FROM customers
+                WHERE UPPER(first_name) ILIKE $1 OR UPPER(last_name) ILIKE $1`,
+      [`%${cName}%`]
     );
-    console.log("DB NAME", cName);
+
+
     console.log(results.rows.map(c => new Customer(c)));
     return results.rows.map(c => new Customer(c));
+
+
   }
 
   /** get a customer's full name. */
@@ -48,10 +52,10 @@ class Customer {
   static async all() {
     const results = await db.query(
       `SELECT id,
-                  first_name AS "firstName",
-                  last_name  AS "lastName",
-                  phone,
-                  notes
+      first_name AS "firstName",
+      last_name  AS "lastName",
+      phone,
+      notes
            FROM customers
            ORDER BY last_name, first_name`,
     );
@@ -63,10 +67,10 @@ class Customer {
   static async get(id) {
     const results = await db.query(
       `SELECT id,
-                  first_name AS "firstName",
-                  last_name  AS "lastName",
-                  phone,
-                  notes
+      first_name AS "firstName",
+      last_name  AS "lastName",
+      phone,
+      notes
            FROM customers
            WHERE id = $1`,
       [id],
@@ -96,8 +100,8 @@ class Customer {
   async save() {
     if (this.id === undefined) {
       const result = await db.query(
-        `INSERT INTO customers (first_name, last_name, phone, notes)
-             VALUES ($1, $2, $3, $4)
+        `INSERT INTO customers(first_name, last_name, phone, notes)
+             VALUES($1, $2, $3, $4)
              RETURNING id`,
         [this.firstName, this.lastName, this.phone, this.notes],
       );
@@ -105,10 +109,10 @@ class Customer {
     } else {
       await db.query(
         `UPDATE customers
-             SET first_name=$1,
-                 last_name=$2,
-                 phone=$3,
-                 notes=$4
+             SET first_name = $1,
+      last_name = $2,
+      phone = $3,
+      notes = $4
              WHERE id = $5`, [
         this.firstName,
         this.lastName,
@@ -119,7 +123,7 @@ class Customer {
       );
     }
   }
-
+  /**Gets top ten customers with the most reservations */
   static async topTenCustomers() {
     const result = await db.query(
       `SELECT COUNT(customer_id), customer_id AS id, customers.first_name AS "firstName",
@@ -128,15 +132,15 @@ class Customer {
            GROUP BY customer_id, customers.first_name, customers.last_name, customers.phone, customers.notes
            ORDER BY COUNT(customer_id)
            DESC LIMIT(10)
-          `
+      `
     );
     const results = result.rows;
     const topTen = results.map(c => new Customer(c));
     return topTen;
 
-    // return customer_id.rows.map(c => Customer.get());
+
   }
 
 }
 
-module.exports = Customer;
+module.exports = Customer;;
